@@ -13,12 +13,84 @@
 [[headers]]
   for = "/*"
   [headers.values]
+    # Content Security Policy - Protection contre XSS
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com; img-src 'self' data: https: blob:; media-src 'self' https:; object-src 'none'; frame-src 'none'; connect-src 'self' https://xrmcwbivgzxtzakiexnq.supabase.co wss://xrmcwbivgzxtzakiexnq.supabase.co; worker-src 'self' blob:; child-src 'self'; form-action 'self'; base-uri 'self'; manifest-src 'self'"
+    
+    # Permissions Policy - Contrôle des APIs du navigateur
+    Permissions-Policy = "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()"
+    
+    # Strict Transport Security - Force HTTPS
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    
+    # Protection contre le clickjacking
     X-Frame-Options = "DENY"
+    
+    # Protection XSS
     X-XSS-Protection = "1; mode=block"
+    
+    # Prévention du MIME sniffing
     X-Content-Type-Options = "nosniff"
+    
+    # Politique de référent
     Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Désactiver les informations du serveur
+    X-Powered-By = ""
+    
+    # Cross-Origin Embedder Policy
+    Cross-Origin-Embedder-Policy = "require-corp"
+    
+    # Cross-Origin Opener Policy
+    Cross-Origin-Opener-Policy = "same-origin"
+    
+    # Cross-Origin Resource Policy
+    Cross-Origin-Resource-Policy = "same-origin"
 
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    # Permettre l'utilisation cross-origin pour les assets
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Content-Type = "font/woff2"
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "*.woff"
+  [headers.values]
+    Content-Type = "font/woff"
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "*.ttf"
+  [headers.values]
+    Content-Type = "font/ttf"
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/logo.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "image/svg+xml"
