@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-poppins text-body text-dark bg-offwhite;
+  }
+
+  h1 {
+    @apply font-lufga text-h1 font-semibold;
+  }
+
+  h2 {
+    @apply font-lufga text-h2 font-semibold;
+  }
+
+  h3 {
+    @apply font-lufga text-h3 font-medium;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-sage text-white py-3 px-6 rounded-button transition-all duration-button hover:bg-opacity-90;
+  }
+
+  .btn-secondary {
+    @apply border border-sage text-sage py-3 px-6 rounded-button transition-all duration-button hover:bg-sage hover:bg-opacity-10;
+  }
+
+  .nav-link {
+    @apply font-poppins text-nav font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-sage after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  .nav-link-active {
+    @apply after:w-full;
+  }
+
+  .form-input {
+    @apply w-full border border-light-gray rounded-button px-4 py-3 focus:outline-none focus:ring-1 focus:ring-sage;
+  }
+
+  .form-label {
+    @apply block font-poppins text-label text-dark mb-2;
+  }
+}
+
+@layer utilities {
+  /* Couleur de surlignage de mots-clés sélectionnés */
+  .highlight-selection mark.permanent-highlight {
+    @apply bg-accent text-white px-1 rounded;
+  }
+}
+
+/* Ajustement pour les liens de navigation sur la page d'accueil */
+.bg-transparent .nav-link {
+  @apply after:bg-white;
+}
+
