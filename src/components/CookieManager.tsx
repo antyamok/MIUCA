@@ -111,7 +111,7 @@ const CookieManager: React.FC = () => {
                   </h3>
                   <p className="text-xs text-gray-600 leading-relaxed mb-3">
                     Nous utilisons des cookies pour améliorer votre expérience. 
-                    Choisissez votre menu !.
+                    Choisissez votre menu !
                   </p>
                   
                   <div className="flex flex-col gap-2">
