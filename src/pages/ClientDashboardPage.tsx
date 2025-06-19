@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -14,47 +14,119 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/supabase';
 import ChatInterface from '../components/ChatInterface';
 import DocumentsInterface from '../components/DocumentsInterface';
 import SettingsInterface from '../components/SettingsInterface';
 
 type ActiveTab = 'dashboard' | 'documents' | 'messages' | 'settings';
 
+interface ClientProject {
+  id: string;
+  title: string;
+  status: string;
+  description?: string;
+  start_date?: string;
+  end_date?: string;
+  created_at: string;
+  project_type?: string;
+  location?: string;
+}
+
 const ClientDashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [projects, setProjects] = useState<ClientProject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Données de démonstration pour le client
-  const clientData = {
-    projects: [
-      {
-        id: '1',
-        title: 'Eco Harmony Villa',
-        status: 'En cours',
-        progress: 65,
-        lastUpdate: '2024-01-10',
-        nextMilestone: 'Finitions intérieures'
+  // Charger les projets du client depuis Supabase
+  const loadClientProjects = async () => {
+    if (!user?.id) return;
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erreur lors du chargement des projets:', error);
+        return;
       }
-    ],
-    notifications: [
-      {
-        id: '1',
-        message: 'Nouvelles photos ajoutées à votre galerie de projet',
-        time: '2 heures',
-        type: 'update'
-      },
-      {
-        id: '2',
-        message: 'Réunion planifiée pour demain à 14h',
-        time: '1 jour',
-        type: 'meeting'
-      }
-    ]
+
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Erreur:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadClientProjects();
+  }, [user?.id]);
+
+  // Calculer le pourcentage de progression basé sur le statut
+  const getProgressPercentage = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 10;
+      case 'in_progress':
+        return 65;
+      case 'completed':
+        return 100;
+      case 'on_hold':
+        return 45;
+      case 'cancelled':
+        return 0;
+      default:
+        return 0;
+    }
+  };
+
+  // Obtenir le libellé du statut en français
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'Brouillon';
+      case 'in_progress':
+        return 'En cours';
+      case 'completed':
+        return 'Terminé';
+      case 'on_hold':
+        return 'En pause';
+      case 'cancelled':
+        return 'Annulé';
+      default:
+        return status;
+    }
+  };
+
+  // Données de démonstration pour les notifications
+  const notifications = [
+    {
+      id: '1',
+      message: 'Nouvelles photos ajoutées à votre galerie de projet',
+      time: '2 heures',
+      type: 'update'
+    },
+    {
+      id: '2',
+      message: 'Réunion planifiée pour demain à 14h',
+      time: '1 jour',
+      type: 'meeting'
+    }
+  ];
 
   const handleLogout = () => {
     logout();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR');
   };
 
   const renderDashboardOverview = () => (
@@ -62,61 +134,98 @@ const ClientDashboardPage: React.FC = () => {
       {/* Projets du client */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-xl font-playfair mb-4">{t('dashboard.projects')}</h3>
-        <div className="space-y-4">
-          {clientData.projects.map((project) => (
-            <motion.div
-              key={project.id}
-              className="border rounded-lg p-4 hover:border-sage transition-colors duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h4 className="font-medium text-lg">{project.title}</h4>
-                  <p className="text-sm text-gray-600">Prochaine étape: {project.nextMilestone}</p>
+        
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-sage"></div>
+          </div>
+        ) : projects.length > 0 ? (
+          <div className="space-y-4">
+            {projects.map((project) => (
+              <motion.div
+                key={project.id}
+                className="border rounded-lg p-4 hover:border-sage transition-colors duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h4 className="font-medium text-lg">{project.title}</h4>
+                    {project.description && (
+                      <p className="text-sm text-gray-600 mt-1">{project.description}</p>
+                    )}
+                    {project.location && (
+                      <p className="text-sm text-gray-500 mt-1">📍 {project.location}</p>
+                    )}
+                    {project.project_type && (
+                      <span className="inline-block px-2 py-1 bg-sage bg-opacity-10 text-sage text-xs rounded-full mt-2">
+                        {project.project_type}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs ${
+                    project.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                    project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    project.status === 'on_hold' ? 'bg-yellow-100 text-yellow-800' :
+                    project.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {getStatusLabel(project.status)}
+                  </span>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs ${
-                  project.status === 'En cours' ? 'bg-blue-100 text-blue-800' :
-                  project.status === 'Terminé' ? 'bg-green-100 text-green-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {project.status}
-                </span>
-              </div>
-              
-              <div className="mb-3">
-                <div className="flex justify-between text-sm mb-1">
-                  <span>{t('dashboard.progress')}</span>
-                  <span>{project.progress}%</span>
+                
+                <div className="mb-3">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>{t('dashboard.progress')}</span>
+                    <span>{getProgressPercentage(project.status)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-sage h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getProgressPercentage(project.status)}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-sage h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${project.progress}%` }}
-                  ></div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    <span>Créé le {formatDate(project.created_at)}</span>
+                    {project.start_date && (
+                      <span> • Début: {formatDate(project.start_date)}</span>
+                    )}
+                    {project.end_date && (
+                      <span> • Fin prévue: {formatDate(project.end_date)}</span>
+                    )}
+                  </div>
+                  <button className="text-sage hover:text-terracotta transition-colors duration-300 text-sm font-medium">
+                    {t('dashboard.viewDetails')}
+                  </button>
                 </div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">
-                  {t('dashboard.lastUpdated')} {project.lastUpdate}
-                </span>
-                <button className="text-sage hover:text-terracotta transition-colors duration-300 text-sm font-medium">
-                  {t('dashboard.viewDetails')}
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-400 mb-4">
+              <FolderOpen className="h-16 w-16 mx-auto" />
+            </div>
+            <h4 className="text-lg font-medium text-gray-600 mb-2">
+              Aucun projet en cours
+            </h4>
+            <p className="text-gray-500">
+              Vos projets apparaîtront ici une fois qu'ils seront créés par notre équipe.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Notifications */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-xl font-playfair mb-4">{t('dashboard.notifications')}</h3>
         <div className="space-y-3">
-          {clientData.notifications.length > 0 ? (
-            clientData.notifications.map((notification) => (
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
               <div key={notification.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                 <div className="w-2 h-2 bg-sage rounded-full mt-2"></div>
                 <div className="flex-1">
