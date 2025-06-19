@@ -89,73 +89,72 @@ const CookieManager: React.FC = () => {
 
   return (
     <>
-      {/* Banner principal */}
+      {/* Banner compact positionné à droite */}
       <AnimatePresence>
         {showBanner && (
           <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-4"
+            initial={{ x: 400, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 400, opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed bottom-4 right-4 z-50 max-w-sm"
           >
-            <div className="max-w-6xl mx-auto">
-              <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 p-3 bg-sage/10 rounded-full">
-                    <Cookie className="h-6 w-6 text-sage" />
-                  </div>
+            <div className="bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border border-gray-200 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 p-2 bg-sage/10 rounded-lg">
+                  <Cookie className="h-4 w-4 text-sage" />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    🍪 Cookies
+                  </h3>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                    Nous utilisons des cookies pour améliorer votre expérience. 
+                    Choisissez vos préférences.
+                  </p>
                   
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      🍪 Nous respectons votre vie privée
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                      Nous utilisons des cookies pour améliorer votre expérience sur notre site, 
-                      analyser le trafic et personnaliser le contenu. Vous pouvez choisir quels 
-                      cookies accepter.
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
                       <button
                         onClick={acceptAll}
-                        className="px-6 py-2 bg-sage text-white rounded-full hover:bg-sage/90 transition-colors duration-300 text-sm font-medium"
+                        className="flex-1 px-3 py-1.5 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors duration-300 text-xs font-medium"
                       >
-                        <Check className="h-4 w-4 inline mr-2" />
-                        Tout accepter
+                        <Check className="h-3 w-3 inline mr-1" />
+                        Accepter
                       </button>
                       
                       <button
                         onClick={acceptNecessary}
-                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors duration-300 text-sm font-medium"
+                        className="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300 text-xs font-medium"
                       >
-                        Nécessaires uniquement
-                      </button>
-                      
-                      <button
-                        onClick={() => setShowSettings(true)}
-                        className="px-6 py-2 text-sage hover:text-sage/80 transition-colors duration-300 text-sm font-medium flex items-center"
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Personnaliser
+                        Refuser
                       </button>
                     </div>
+                    
+                    <button
+                      onClick={() => setShowSettings(true)}
+                      className="w-full px-3 py-1.5 text-sage hover:text-sage/80 transition-colors duration-300 text-xs font-medium flex items-center justify-center"
+                    >
+                      <Settings className="h-3 w-3 mr-1" />
+                      Personnaliser
+                    </button>
                   </div>
-                  
-                  <button
-                    onClick={() => setShowBanner(false)}
-                    className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
                 </div>
+                
+                <button
+                  onClick={() => setShowBanner(false)}
+                  className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Modal de paramètres détaillés */}
+      {/* Modal de paramètres détaillés - plus compact */}
       <AnimatePresence>
         {showSettings && (
           <motion.div
@@ -168,96 +167,95 @@ const CookieManager: React.FC = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto"
             >
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-sage/10 rounded-full">
-                      <Shield className="h-6 w-6 text-sage" />
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-sage/10 rounded-lg">
+                      <Shield className="h-4 w-4 text-sage" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      Paramètres des cookies
+                    <h2 className="text-base font-semibold text-gray-900">
+                      Paramètres cookies
                     </h2>
                   </div>
                   <button
                     onClick={() => setShowSettings(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
-                <p className="text-gray-600 text-sm">
-                  Gérez vos préférences de cookies. Vous pouvez modifier ces paramètres à tout moment.
+              <div className="p-4 space-y-4">
+                <p className="text-xs text-gray-600">
+                  Gérez vos préférences de cookies. Modifiables à tout moment.
                 </p>
 
                 {/* Cookies nécessaires */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies nécessaires</h3>
+                <div className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-medium text-gray-900">Nécessaires</h3>
                     <div className="flex items-center">
-                      <span className="text-xs text-gray-500 mr-2">Toujours activé</span>
-                      <div className="w-10 h-6 bg-sage rounded-full flex items-center justify-end px-1">
-                        <div className="w-4 h-4 bg-white rounded-full"></div>
+                      <span className="text-xs text-gray-500 mr-2">Activé</span>
+                      <div className="w-8 h-4 bg-sage rounded-full flex items-center justify-end px-0.5">
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Ces cookies sont essentiels au fonctionnement du site et ne peuvent pas être désactivés.
+                  <p className="text-xs text-gray-600">
+                    Essentiels au fonctionnement du site.
                   </p>
                 </div>
 
                 {/* Cookies analytiques */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies analytiques</h3>
+                <div className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-medium text-gray-900">Analytiques</h3>
                     <button
                       onClick={() => handlePreferenceChange('analytics', !preferences.analytics)}
-                      className={`w-10 h-6 rounded-full flex items-center transition-colors duration-300 ${
+                      className={`w-8 h-4 rounded-full flex items-center transition-colors duration-300 ${
                         preferences.analytics ? 'bg-sage justify-end' : 'bg-gray-300 justify-start'
-                      } px-1`}
+                      } px-0.5`}
                     >
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
                     </button>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Ces cookies nous aident à comprendre comment vous utilisez notre site pour l'améliorer.
-                    Données anonymisées via Google Analytics.
+                  <p className="text-xs text-gray-600">
+                    Analyse du trafic (Google Analytics anonymisé).
                   </p>
                 </div>
 
                 {/* Cookies marketing */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies marketing</h3>
+                <div className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-medium text-gray-900">Marketing</h3>
                     <button
                       onClick={() => handlePreferenceChange('marketing', !preferences.marketing)}
-                      className={`w-10 h-6 rounded-full flex items-center transition-colors duration-300 ${
+                      className={`w-8 h-4 rounded-full flex items-center transition-colors duration-300 ${
                         preferences.marketing ? 'bg-sage justify-end' : 'bg-gray-300 justify-start'
-                      } px-1`}
+                      } px-0.5`}
                     >
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
                     </button>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Ces cookies sont utilisés pour vous proposer des publicités pertinentes sur d'autres sites.
+                  <p className="text-xs text-gray-600">
+                    Publicités personnalisées sur d'autres sites.
                   </p>
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-200 flex gap-3">
+              <div className="p-4 border-t border-gray-200 flex gap-2">
                 <button
                   onClick={() => savePreferences(preferences)}
-                  className="flex-1 px-6 py-3 bg-sage text-white rounded-full hover:bg-sage/90 transition-colors duration-300 font-medium"
+                  className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors duration-300 text-sm font-medium"
                 >
-                  Enregistrer les préférences
+                  Enregistrer
                 </button>
                 <button
                   onClick={acceptAll}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors duration-300 font-medium"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300 text-sm font-medium"
                 >
                   Tout accepter
                 </button>
@@ -267,17 +265,17 @@ const CookieManager: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Bouton flottant pour rouvrir les paramètres */}
+      {/* Bouton flottant compact pour rouvrir les paramètres */}
       {!showBanner && (
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 1 }}
           onClick={() => setShowSettings(true)}
-          className="fixed bottom-4 left-4 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 z-40"
-          title="Paramètres des cookies"
+          className="fixed bottom-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 z-40"
+          title="Paramètres cookies"
         >
-          <Cookie className="h-5 w-5 text-sage" />
+          <Cookie className="h-4 w-4 text-sage" />
         </motion.button>
       )}
     </>
