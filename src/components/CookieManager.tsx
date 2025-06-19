@@ -107,11 +107,11 @@ const CookieManager: React.FC = () => {
                 
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                    🍪 Cookies
+                    🍪 Cookies "pas fait maison"
                   </h3>
                   <p className="text-xs text-gray-600 leading-relaxed mb-3">
                     Nous utilisons des cookies pour améliorer votre expérience. 
-                    Choisissez vos préférences.
+                    Choisissez votre menu !.
                   </p>
                   
                   <div className="flex flex-col gap-2">
