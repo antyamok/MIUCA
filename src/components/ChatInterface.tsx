@@ -62,6 +62,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUserId }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Fonction pour enrichir les messages avec les informations du sender
+  const enrichMessagesWithSenderInfo = (messages: any[], contacts: Contact[]) => {
+    return messages.map(message => {
+      const sender = contacts.find(contact => contact.id === message.sender_id);
+      return {
+        ...message,
+        sender: sender ? {
+          name: sender.name,
+          email: sender.email
+        } : {
+          name: 'Utilisateur inconnu',
+          email: ''
+        }
+      };
+    });
+  };
+
   // Charger les contacts
   const loadContacts = async () => {
     setIsLoading(true);
@@ -146,18 +163,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUserId }) => {
 
     setIsLoadingMessages(true);
     try {
+      // Récupérer les messages sans jointure
       const { data, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender:sender_id(name, email)
-        `)
+        .select('*')
         .or(`and(sender_id.eq.${currentUserId},recipient_id.eq.${contactId}),and(sender_id.eq.${contactId},recipient_id.eq.${currentUserId})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      setMessages(data || []);
+      // Enrichir les messages avec les informations du sender
+      const enrichedMessages = enrichMessagesWithSenderInfo(data || [], contacts);
+      setMessages(enrichedMessages);
 
       // Marquer les messages comme lus
       await supabase
@@ -203,15 +220,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUserId }) => {
 
       if (error) throw error;
 
-      // Ajouter le message à la liste locale
-      setMessages(prev => [...prev, {
+      // Ajouter le message à la liste locale avec les informations du sender
+      const enrichedMessage = {
         ...data,
         sender: {
-          name: user?.name,
+          name: user?.name || 'Vous',
           email: user?.email || ''
         }
-      }]);
+      };
 
+      setMessages(prev => [...prev, enrichedMessage]);
       setNewMessage('');
       
       // Faire défiler vers le bas
@@ -292,7 +310,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUserId }) => {
           
           // Si le message vient du contact sélectionné, l'ajouter à la conversation
           if (selectedContact && newMessage.sender_id === selectedContact.id) {
-            setMessages(prev => [...prev, newMessage]);
+            // Enrichir le nouveau message avec les informations du sender
+            const enrichedMessage = {
+              ...newMessage,
+              sender: {
+                name: selectedContact.name,
+                email: selectedContact.email
+              }
+            };
+            
+            setMessages(prev => [...prev, enrichedMessage]);
             
             // Marquer comme lu immédiatement
             supabase
