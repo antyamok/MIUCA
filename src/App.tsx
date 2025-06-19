@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import CookieManager from './components/CookieManager';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -81,6 +82,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <CookieManager />
           </div>
         </Router>
       </AuthProvider>
