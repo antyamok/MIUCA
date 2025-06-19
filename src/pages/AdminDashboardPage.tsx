@@ -7,7 +7,6 @@ import {
   MessageSquare, 
   Settings,
   LogOut,
-  Bell,
   Search,
   Plus,
   TrendingUp,
@@ -22,6 +21,7 @@ import AdminClientInterface from '../components/AdminClientInterface';
 import ChatInterface from '../components/ChatInterface';
 import DocumentsInterface from '../components/DocumentsInterface';
 import SettingsInterface from '../components/SettingsInterface';
+import NotificationCenter from '../components/NotificationCenter';
 
 type ActiveTab = 'dashboard' | 'projects' | 'blog' | 'clients' | 'messages' | 'documents' | 'settings';
 
@@ -254,10 +254,7 @@ const AdminDashboardPage: React.FC = () => {
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             </div>
-            <button className="relative p-2 text-gray-600 hover:text-sage transition-colors duration-300">
-              <Bell className="h-6 w-6" />
-              <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
-            </button>
+            <NotificationCenter />
             <button 
               onClick={handleLogout}
               className="flex items-center text-gray-600 hover:text-red-600 transition-colors duration-300"
