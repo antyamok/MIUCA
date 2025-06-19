@@ -35,15 +35,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError || !authData.user) throw authError ?? new Error('No user data returned');
 
+      const authUserId = authData.user.id;
+
       const { data: adminData } = await supabase
         .from('admins')
         .select('id, email, role, name')
-        .eq('email', email.toLowerCase().trim())
+        .eq('id', authUserId)
         .maybeSingle();
 
       if (adminData) {
         const adminUser = { 
-          id: adminData.id, 
+          id: authUserId, // Use auth user ID instead of admin table ID
           name: adminData.name ?? email.split('@')[0], 
           email: adminData.email, 
           role: 'admin' as const 
@@ -56,12 +58,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: clientData } = await supabase
         .from('clients')
         .select('id, name, email')
-        .eq('email', email.toLowerCase().trim())
+        .eq('id', authUserId)
         .maybeSingle();
 
       if (clientData) {
         const clientUser = { 
-          id: clientData.id, 
+          id: authUserId, // Use auth user ID instead of client table ID
           name: clientData.name ?? email.split('@')[0], 
           email: clientData.email, 
           role: 'client' as const 
@@ -71,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await supabase
           .from('clients')
           .update({ last_seen: new Date().toISOString() })
-          .eq('email', email.toLowerCase().trim());
+          .eq('id', authUserId);
 
         setUser(clientUser);
         setIsLoading(false);
@@ -97,17 +99,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const email = session?.user?.email;
-      if (!email) return setIsLoading(false);
+      const authUserId = session?.user?.id;
+      if (!email || !authUserId) return setIsLoading(false);
 
       try {
         const { data: adminData } = await supabase
           .from('admins')
           .select('id, email, role, name')
-          .eq('email', email.toLowerCase().trim())
+          .eq('id', authUserId)
           .maybeSingle();
 
         if (adminData) {
-          setUser({ id: adminData.id, name: adminData.name ?? email.split('@')[0], email, role: 'admin' });
+          setUser({ id: authUserId, name: adminData.name ?? email.split('@')[0], email, role: 'admin' });
           setIsLoading(false);
           return;
         }
@@ -115,11 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: clientData } = await supabase
           .from('clients')
           .select('id, name, email')
-          .eq('email', email.toLowerCase().trim())
+          .eq('id', authUserId)
           .maybeSingle();
 
         if (clientData) {
-          setUser({ id: clientData.id, name: clientData.name ?? email.split('@')[0], email, role: 'client' });
+          setUser({ id: authUserId, name: clientData.name ?? email.split('@')[0], email, role: 'client' });
         }
       } catch (error) {
         console.error('Auth init error:', error);
