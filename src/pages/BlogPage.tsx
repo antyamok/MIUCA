@@ -1,11 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
 import BlogCard from '../components/BlogCard';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/supabase';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt?: string;
+  featured_image?: string;
+  category?: string;
+  published_at?: string;
+  created_at: string;
+  status: string;
+  author?: {
+    name?: string;
+    email: string;
+  };
+}
 
 const BlogPage: React.FC = () => {
   const { t } = useLanguage();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   
   // Catégories pour le filtrage
   const categories = [
@@ -13,67 +32,76 @@ const BlogPage: React.FC = () => {
     'Design Durable',
     'Matériaux Écologiques',
     'Vie Écologique',
-    'Tendances Architecture'
+    'Tendances Architecture',
+    'Innovation',
+    'Conseils'
   ];
   
   const [activeCategory, setActiveCategory] = useState('Tous');
 
-  // Données des articles de blog
-  const blogPosts = [
-    {
-      id: '1',
-      title: "L'Avenir de l'Architecture Durable dans les Environnements Urbains",
-      excerpt: "Explorer comment la conception écologique transforme nos villes et crée des espaces urbains plus vivables.",
-      image: 'https://images.unsplash.com/photo-1518005068251-37900150dfca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80',
-      date: 'mai 2025',
-      category: 'Design Durable'
-    },
-    {
-      id: '2',
-      title: 'Matériaux de Construction Écologiques Innovants pour 2023',
-      excerpt: 'Un guide complet des derniers matériaux durables qui révolutionnent l\'industrie de la construction.',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1331&q=80',
-      date: 'mai 2025',
-      category: 'Matériaux Écologiques'
-    },
-    {
-      id: '3',
-      title: 'Design Biophilique : Intégrer la Nature à l\'Intérieur',
-      excerpt: 'Comment l\'incorporation d\'éléments naturels dans les espaces intérieurs peut améliorer le bien-être et la productivité.',
-      image: 'https://images.unsplash.com/photo-1493552152660-f915ab47ae9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1073&q=80',
-      date: 'mai 2025',
-      category: 'Vie Écologique'
-    },
-    {
-      id: '4',
-      title: 'Maison Passive : Principes et Avantages',
-      excerpt: 'Comprendre les concepts clés derrière les maisons ultra-efficaces qui nécessitent un minimum d\'énergie pour le chauffage et le refroidissement.',
-      image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: 'juin 2025',
-      category: 'Design Durable'
-    },
-    {
-      id: '5',
-      title: 'Rénovation Durable : Transformer les Espaces Existants',
-      excerpt: 'Conseils et stratégies pour des rénovations écologiques qui minimisent les déchets et maximisent l\'efficacité énergétique.',
-      image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: 'juin 2025',
-      category: 'Tendances Architecture'
-    },
-    {
-      id: '6',
-      title: 'La Psychologie des Couleurs dans le Design d\'Intérieur Durable',
-      excerpt: 'Comment les choix de couleurs affectent l\'humeur, la productivité et le bien-être général dans les espaces écologiques.',
-      image: 'https://images.unsplash.com/photo-1618219944342-824e40a13285?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: 'juin 2025',
-      category: 'Vie Écologique'
+  // Charger les articles depuis Supabase
+  const loadBlogPosts = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select(`
+          id,
+          title,
+          excerpt,
+          featured_image,
+          category,
+          published_at,
+          created_at,
+          status,
+          author:admins(name, email)
+        `)
+        .eq('status', 'published') // Seulement les articles publiés
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setBlogPosts(data || []);
+    } catch (error: any) {
+      console.error('Erreur lors du chargement des articles:', error);
+      setError('Impossible de charger les articles');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    loadBlogPosts();
+  }, []);
 
   // Filtrer les articles en fonction de la catégorie active
   const filteredPosts = activeCategory === 'Tous' 
     ? blogPosts 
     : blogPosts.filter(post => post.category === activeCategory);
+
+  // Formater la date pour l'affichage
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Transformer les données pour le composant BlogCard
+  const transformPostForCard = (post: BlogPost) => ({
+    id: post.id,
+    title: post.title,
+    excerpt: post.excerpt || 'Découvrez cet article passionnant sur l\'architecture durable.',
+    image: post.featured_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+    date: formatDate(post.published_at || post.created_at),
+    category: post.category || 'Design Durable'
+  });
 
   return (
     <div>
@@ -102,22 +130,46 @@ const BlogPage: React.FC = () => {
             ))}
           </div>
 
+          {/* État de chargement */}
+          {isLoading && (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-sage"></div>
+            </div>
+          )}
+
+          {/* Message d'erreur */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-center">
+              {error}
+            </div>
+          )}
+
           {/* Grille des articles */}
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {filteredPosts.map((post) => (
-              <BlogCard key={post.id} {...post} />
-            ))}
-          </motion.div>
+          {!isLoading && !error && (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {filteredPosts.map((post) => (
+                <BlogCard key={post.id} {...transformPostForCard(post)} />
+              ))}
+            </motion.div>
+          )}
 
           {/* État vide */}
-          {filteredPosts.length === 0 && (
+          {!isLoading && !error && filteredPosts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-lg text-gray-600">Aucun article trouvé dans cette catégorie.</p>
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                Aucun article trouvé
+              </h3>
+              <p className="text-gray-500">
+                {activeCategory !== 'Tous' 
+                  ? `Aucun article publié dans la catégorie "${activeCategory}".`
+                  : 'Aucun article publié pour le moment.'
+                }
+              </p>
             </div>
           )}
         </div>

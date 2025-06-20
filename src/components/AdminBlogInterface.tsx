@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, Star, Eye, Calendar } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Star, Eye, Calendar, Archive, RotateCcw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import BlogEditorDialog from './BlogEditorDialog';
 
@@ -127,7 +127,7 @@ const AdminBlogInterface: React.FC = () => {
   };
 
   const handleDelete = async (postId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer définitivement cet article ?')) {
       try {
         const { error } = await supabase
           .from('blog_posts')
@@ -143,6 +143,48 @@ const AdminBlogInterface: React.FC = () => {
       } catch (error: any) {
         console.error('Erreur lors de la suppression:', error);
         setError('Impossible de supprimer l\'article');
+      }
+    }
+  };
+
+  const handleArchive = async (postId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir archiver cet article ?')) {
+      try {
+        const { error } = await supabase
+          .from('blog_posts')
+          .update({ status: 'archived' })
+          .eq('id', postId);
+
+        if (error) {
+          throw error;
+        }
+
+        // Recharger la liste des articles
+        loadPosts();
+      } catch (error: any) {
+        console.error('Erreur lors de l\'archivage:', error);
+        setError('Impossible d\'archiver l\'article');
+      }
+    }
+  };
+
+  const handleRestore = async (postId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir restaurer cet article ?')) {
+      try {
+        const { error } = await supabase
+          .from('blog_posts')
+          .update({ status: 'draft' })
+          .eq('id', postId);
+
+        if (error) {
+          throw error;
+        }
+
+        // Recharger la liste des articles
+        loadPosts();
+      } catch (error: any) {
+        console.error('Erreur lors de la restauration:', error);
+        setError('Impossible de restaurer l\'article');
       }
     }
   };
@@ -341,10 +383,29 @@ const AdminBlogInterface: React.FC = () => {
                   >
                     <Edit2 className="h-5 w-5" />
                   </button>
+                  
+                  {post.status === 'archived' ? (
+                    <button 
+                      className="p-2 text-blue-500 hover:text-blue-600 transition-colors duration-300"
+                      onClick={() => handleRestore(post.id)}
+                      title="Restaurer"
+                    >
+                      <RotateCcw className="h-5 w-5" />
+                    </button>
+                  ) : (
+                    <button 
+                      className="p-2 text-orange-500 hover:text-orange-600 transition-colors duration-300"
+                      onClick={() => handleArchive(post.id)}
+                      title="Archiver"
+                    >
+                      <Archive className="h-5 w-5" />
+                    </button>
+                  )}
+                  
                   <button 
                     className="p-2 text-red-500 hover:text-red-600 transition-colors duration-300"
                     onClick={() => handleDelete(post.id)}
-                    title="Supprimer"
+                    title="Supprimer définitivement"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
