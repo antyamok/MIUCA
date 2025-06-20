@@ -101,7 +101,9 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
     setSuccess('');
 
     try {
-      // Préparer les données de mise à jour
+      console.log('Début de la mise à jour du client:', client.id);
+      
+      // Préparer les données de mise à jour avec validation
       const updateData: any = {
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -109,38 +111,72 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
         address: formData.address.trim() || null,
         postal_code: formData.postal_code.trim() || null,
         city: formData.city.trim() || null,
-        country: formData.country,
+        country: formData.country || 'France',
       };
+
+      // Validation des champs requis
+      if (!updateData.name) {
+        setError('Le nom est requis');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!updateData.email) {
+        setError('L\'email est requis');
+        setIsLoading(false);
+        return;
+      }
 
       // Gérer l'upload de l'avatar si un nouveau fichier est sélectionné
       if (avatarFile) {
-        const fileExt = avatarFile.name.split('.').pop();
-        const fileName = `${client.id}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, avatarFile, { upsert: true });
-
-        if (uploadError) {
-          console.error('Erreur upload avatar:', uploadError);
-        } else {
-          const { data: { publicUrl } } = supabase.storage
+        try {
+          const fileExt = avatarFile.name.split('.').pop();
+          const fileName = `${client.id}.${fileExt}`;
+          
+          console.log('Upload de l\'avatar:', fileName);
+          
+          const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .getPublicUrl(fileName);
-          updateData.avatar_url = publicUrl;
+            .upload(fileName, avatarFile, { upsert: true });
+
+          if (uploadError) {
+            console.error('Erreur upload avatar:', uploadError);
+            setError('Erreur lors du téléchargement de l\'avatar: ' + uploadError.message);
+            setIsLoading(false);
+            return;
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(fileName);
+            updateData.avatar_url = publicUrl;
+            console.log('Avatar uploadé avec succès:', publicUrl);
+          }
+        } catch (avatarError: any) {
+          console.error('Erreur lors de l\'upload de l\'avatar:', avatarError);
+          setError('Erreur lors du téléchargement de l\'avatar');
+          setIsLoading(false);
+          return;
         }
       }
 
+      console.log('Données à mettre à jour:', updateData);
+
       // Mettre à jour les informations dans la table clients
-      const { error: clientError } = await supabase
+      const { data: updatedClient, error: clientError } = await supabase
         .from('clients')
         .update(updateData)
-        .eq('id', client.id);
+        .eq('id', client.id)
+        .select()
+        .single();
 
       if (clientError) {
         console.error('Erreur lors de la mise à jour du client:', clientError);
-        throw clientError;
+        setError('Erreur lors de la mise à jour: ' + clientError.message);
+        setIsLoading(false);
+        return;
       }
+
+      console.log('Client mis à jour avec succès:', updatedClient);
 
       // Mettre à jour le mot de passe si fourni via l'API backend
       if (formData.newPassword && formData.newPassword.trim()) {
@@ -151,6 +187,8 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
         }
 
         try {
+          console.log('Mise à jour du mot de passe pour:', client.id);
+          
           const response = await fetch('/api/admin/update-user', {
             method: 'POST',
             headers: {
@@ -171,6 +209,8 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
           if (!response.ok) {
             console.error('Erreur lors de la mise à jour du mot de passe:', result.error);
             setError('Les informations ont été mises à jour, mais le mot de passe n\'a pas pu être modifié: ' + result.error);
+          } else {
+            console.log('Mot de passe mis à jour avec succès');
           }
         } catch (passwordError: any) {
           console.error('Erreur auth:', passwordError);
@@ -202,8 +242,8 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
       }, 1500);
 
     } catch (error: any) {
-      console.error('Erreur lors de la mise à jour du client:', error);
-      setError(error.message || 'Une erreur est survenue lors de la mise à jour du client');
+      console.error('Erreur générale lors de la mise à jour du client:', error);
+      setError('Une erreur est survenue lors de la mise à jour du client: ' + error.message);
     } finally {
       setIsLoading(false);
     }
