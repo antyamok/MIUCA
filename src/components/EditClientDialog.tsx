@@ -162,12 +162,10 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
       console.log('Données à mettre à jour:', updateData);
 
       // Mettre à jour les informations dans la table clients
-      const { data: updatedClient, error: clientError } = await supabase
+      const { error: clientError } = await supabase
         .from('clients')
         .update(updateData)
-        .eq('id', client.id)
-        .select()
-        .single();
+        .eq('id', client.id);
 
       if (clientError) {
         console.error('Erreur lors de la mise à jour du client:', clientError);
@@ -176,7 +174,7 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
         return;
       }
 
-      console.log('Client mis à jour avec succès:', updatedClient);
+      console.log('Client mis à jour avec succès');
 
       // Mettre à jour le mot de passe si fourni via l'API backend
       if (formData.newPassword && formData.newPassword.trim()) {
