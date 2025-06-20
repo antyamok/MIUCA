@@ -35,18 +35,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError || !authData.user) throw authError ?? new Error('No user data returned');
 
-      const authUserId = authData.user.id;
+      const userEmail = authData.user.email;
+      if (!userEmail) throw new Error('No email found in auth data');
 
+      // Look up admin by email instead of auth user ID
       const { data: adminData } = await supabase
         .from('admins')
         .select('id, email, role, name')
-        .eq('id', authUserId)
+        .eq('email', userEmail)
         .maybeSingle();
 
       if (adminData) {
         const adminUser = { 
-          id: authUserId, // Use auth user ID instead of admin table ID
-          name: adminData.name ?? email.split('@')[0], 
+          id: adminData.id, // Use the admin table ID
+          name: adminData.name ?? userEmail.split('@')[0], 
           email: adminData.email, 
           role: 'admin' as const 
         };
@@ -55,25 +57,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true, redirectTo: '/admin' };
       }
 
+      // Look up client by email instead of auth user ID
       const { data: clientData } = await supabase
         .from('clients')
         .select('id, name, email')
-        .eq('id', authUserId)
+        .eq('email', userEmail)
         .maybeSingle();
 
       if (clientData) {
         const clientUser = { 
-          id: authUserId, // Use auth user ID instead of client table ID
-          name: clientData.name ?? email.split('@')[0], 
+          id: clientData.id, // Use the client table ID
+          name: clientData.name ?? userEmail.split('@')[0], 
           email: clientData.email, 
           role: 'client' as const 
         };
 
-        // ➕ Mise à jour de last_seen
+        // Update last_seen using the client table ID
         await supabase
           .from('clients')
           .update({ last_seen: new Date().toISOString() })
-          .eq('id', authUserId);
+          .eq('id', clientData.id);
 
         setUser(clientUser);
         setIsLoading(false);
@@ -99,30 +102,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const email = session?.user?.email;
-      const authUserId = session?.user?.id;
-      if (!email || !authUserId) return setIsLoading(false);
+      if (!email) return setIsLoading(false);
 
       try {
+        // Look up admin by email
         const { data: adminData } = await supabase
           .from('admins')
           .select('id, email, role, name')
-          .eq('id', authUserId)
+          .eq('email', email)
           .maybeSingle();
 
         if (adminData) {
-          setUser({ id: authUserId, name: adminData.name ?? email.split('@')[0], email, role: 'admin' });
+          setUser({ id: adminData.id, name: adminData.name ?? email.split('@')[0], email, role: 'admin' });
           setIsLoading(false);
           return;
         }
 
+        // Look up client by email
         const { data: clientData } = await supabase
           .from('clients')
           .select('id, name, email')
-          .eq('id', authUserId)
+          .eq('email', email)
           .maybeSingle();
 
         if (clientData) {
-          setUser({ id: authUserId, name: clientData.name ?? email.split('@')[0], email, role: 'client' });
+          setUser({ id: clientData.id, name: clientData.name ?? email.split('@')[0], email, role: 'client' });
         }
       } catch (error) {
         console.error('Auth init error:', error);
