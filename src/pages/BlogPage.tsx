@@ -25,7 +25,7 @@ const BlogPage: React.FC = () => {
       title: "L'Avenir de l'Architecture Durable dans les Environnements Urbains",
       excerpt: "Explorer comment la conception écologique transforme nos villes et crée des espaces urbains plus vivables.",
       image: 'https://images.unsplash.com/photo-1518005068251-37900150dfca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80',
-      date: '15 juin 2023',
+      date: 'mai 2025',
       category: 'Design Durable'
     },
     {
@@ -33,7 +33,7 @@ const BlogPage: React.FC = () => {
       title: 'Matériaux de Construction Écologiques Innovants pour 2023',
       excerpt: 'Un guide complet des derniers matériaux durables qui révolutionnent l\'industrie de la construction.',
       image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1331&q=80',
-      date: '22 mai 2023',
+      date: 'mai 2025',
       category: 'Matériaux Écologiques'
     },
     {
@@ -41,7 +41,7 @@ const BlogPage: React.FC = () => {
       title: 'Design Biophilique : Intégrer la Nature à l\'Intérieur',
       excerpt: 'Comment l\'incorporation d\'éléments naturels dans les espaces intérieurs peut améliorer le bien-être et la productivité.',
       image: 'https://images.unsplash.com/photo-1493552152660-f915ab47ae9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1073&q=80',
-      date: '10 avril 2023',
+      date: 'mai 2025',
       category: 'Vie Écologique'
     },
     {
@@ -49,7 +49,7 @@ const BlogPage: React.FC = () => {
       title: 'Maison Passive : Principes et Avantages',
       excerpt: 'Comprendre les concepts clés derrière les maisons ultra-efficaces qui nécessitent un minimum d\'énergie pour le chauffage et le refroidissement.',
       image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: '5 mars 2023',
+      date: 'juin 2025',
       category: 'Design Durable'
     },
     {
@@ -57,7 +57,7 @@ const BlogPage: React.FC = () => {
       title: 'Rénovation Durable : Transformer les Espaces Existants',
       excerpt: 'Conseils et stratégies pour des rénovations écologiques qui minimisent les déchets et maximisent l\'efficacité énergétique.',
       image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: '18 février 2023',
+      date: 'juin 2025',
       category: 'Tendances Architecture'
     },
     {
@@ -65,7 +65,7 @@ const BlogPage: React.FC = () => {
       title: 'La Psychologie des Couleurs dans le Design d\'Intérieur Durable',
       excerpt: 'Comment les choix de couleurs affectent l\'humeur, la productivité et le bien-être général dans les espaces écologiques.',
       image: 'https://images.unsplash.com/photo-1618219944342-824e40a13285?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      date: '30 janvier 2023',
+      date: 'juin 2025',
       category: 'Vie Écologique'
     }
   ];
