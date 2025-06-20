@@ -103,12 +103,12 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
     try {
       // Préparer les données de mise à jour
       const updateData: any = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        address: formData.address || null,
-        postal_code: formData.postal_code || null,
-        city: formData.city || null,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || null,
+        address: formData.address.trim() || null,
+        postal_code: formData.postal_code.trim() || null,
+        city: formData.city.trim() || null,
         country: formData.country,
       };
 
@@ -138,47 +138,45 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
         .eq('id', client.id);
 
       if (clientError) {
+        console.error('Erreur lors de la mise à jour du client:', clientError);
         throw clientError;
       }
 
-      // Mettre à jour le mot de passe si fourni via Supabase Auth
+      // Mettre à jour le mot de passe si fourni via l'API backend
       if (formData.newPassword && formData.newPassword.trim()) {
         if (formData.newPassword.length < 6) {
           setError('Le mot de passe doit contenir au moins 6 caractères');
+          setIsLoading(false);
           return;
         }
 
         try {
-          // Utiliser l'API Supabase Auth pour mettre à jour le mot de passe
-          const { error: passwordError } = await supabase.auth.admin.updateUserById(
-            client.id,
-            { password: formData.newPassword }
-          );
+          const response = await fetch('/api/admin/update-user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: client.id,
+              newPassword: formData.newPassword,
+              user_metadata: {
+                name: formData.name,
+                updated_at: new Date().toISOString()
+              }
+            })
+          });
 
-          if (passwordError) {
-            throw new Error(passwordError.message || 'Erreur lors de la mise à jour du mot de passe');
+          const result = await response.json();
+
+          if (!response.ok) {
+            console.error('Erreur lors de la mise à jour du mot de passe:', result.error);
+            setError('Les informations ont été mises à jour, mais le mot de passe n\'a pas pu être modifié: ' + result.error);
           }
         } catch (passwordError: any) {
-          // Si l'API admin n'est pas disponible, on continue sans erreur fatale
-          console.warn('Impossible de mettre à jour le mot de passe:', passwordError);
+          console.error('Erreur auth:', passwordError);
           setError('Les informations ont été mises à jour, mais le mot de passe n\'a pas pu être modifié. Veuillez contacter l\'administrateur système.');
         }
       }
-
-      // Réinitialiser le formulaire
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        postal_code: '',
-        city: '',
-        country: 'France',
-        avatar_url: '',
-        newPassword: ''
-      });
-      setAvatarFile(null);
-      setAvatarPreview('');
 
       setSuccess('Client mis à jour avec succès' + (formData.newPassword ? ' (mot de passe inclus)' : ''));
 
@@ -187,6 +185,20 @@ const EditClientDialog: React.FC<EditClientDialogProps> = ({
         onClientUpdated();
         onClose();
         setSuccess('');
+        // Réinitialiser le formulaire
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          postal_code: '',
+          city: '',
+          country: 'France',
+          avatar_url: '',
+          newPassword: ''
+        });
+        setAvatarFile(null);
+        setAvatarPreview('');
       }, 1500);
 
     } catch (error: any) {
