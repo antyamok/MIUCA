@@ -25,7 +25,7 @@ const AboutPage: React.FC = () => {
           >
             <div className="w-80 h-80 rounded-full overflow-hidden flex-shrink-0">
               <img 
-                src="https://images.unsplash.com/photo-1593062096033-9a26b09da705?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                 alt={t('about.story.title')}
                 className="w-full h-full object-cover"
               />
@@ -293,7 +293,7 @@ const AboutPage: React.FC = () => {
       <PageHeader
         title={t('about.hero.title')}
         subtitle={t('about.hero.subtitle')}
-        backgroundImage="https://images.unsplash.com/photo-1600585154526-990dced4db0d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+        backgroundImage="https://images.unsplash.com/photo-1593062096033-9a26b09da705?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
       />
 
       <StorySection />
