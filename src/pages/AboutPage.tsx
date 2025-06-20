@@ -25,7 +25,7 @@ const AboutPage: React.FC = () => {
           >
             <div className="w-80 h-80 rounded-full overflow-hidden flex-shrink-0">
               <img 
-                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                src="https://unsplash.com/fr/photos/ordinateur-portable-noir-sur-table-en-bois-marron-3S0INpfREQc=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                 alt={t('about.story.title')}
                 className="w-full h-full object-cover"
               />
